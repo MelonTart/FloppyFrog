@@ -14,6 +14,7 @@ export default component$(() => {
   return (
     <>
       <main>
+        <Header />
         <section>
           <Slot />
         </section>

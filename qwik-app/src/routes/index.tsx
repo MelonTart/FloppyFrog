@@ -5,7 +5,7 @@ import { Link } from '@builder.io/qwik-city';
 export default component$(() => {
   return (
     <div>
-        Hello World Floppy Frog!
+        Floppy Frog!
      </div>
   );
 });
