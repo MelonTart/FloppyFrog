@@ -13,6 +13,11 @@
   --qwik-dark-purple: #713fc2;
 }
 
+canvas{
+  border: 1px solid black;
+
+}
+
 body {
   background-color: #fafafa;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
