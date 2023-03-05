@@ -1,15 +1,50 @@
 import { component$, useStylesScoped$,useTask$ , useStore,useOn,$} from '@builder.io/qwik';
 import { FrogLogo } from '../icons/floppyfrog';
 
-export default component$(() => {
-  const store = useStore({
-    count: 0,
-    debounced: 0,
-  });
 
+export function drawHexagon(x,y,size,ctx,State){
+        
+  const a = 2 * Math.PI / 6;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    ctx.lineTo(x + size * Math.sin(a * i), y + size * Math.cos(a * i));
+  }
+  ctx.closePath();
+  if(State != 0) {
+    ctx.fillStyle = "blue";
+    ctx.fill();
+  }
+
+  ctx.stroke();
+}
+
+export function drawGrid(width, height,size,ctx,store) {
+  const a = 2 * Math.PI / 6;
+  let r = size;
+  for (let y = 0; y  < height; y +=1) {
+    for (let x = 0, j = 1; x  < width; x +=1) {
+      let xLocation = (size *  Math.sin(a))*x*2 + (y%2 *(size *  Math.sin(a)));
+      let yLocation = (size* (1+Math.cos(a)))*y ;
+      drawHexagon(xLocation+size,yLocation+size,size,ctx,store.letters[x+y*5]);
+    }
+  }
+}
+
+
+export default component$(() => {
+
+  const store = useStore(
+    {
+      letters: new Array(55).fill(0),
+    },
+    { deep: true }
+  );
   useOn(
     'click',
-    $((event) => {
+    $((ev) => {
+      let event = ev ! as PointerEvent;
+      console.log(event);
+      console.log(event.target);
       let size = 50;
       const a = 2 * Math.PI / 6;
       let minx = 0,miny=0, minDist = 100000;
@@ -26,7 +61,11 @@ export default component$(() => {
       }
     }
     console.log(minx,miny);
-  
+    store.letters[minx+(miny*5)] = 1;
+    let canvas = event.target;
+    var ctx = canvas.getContext("2d");
+    drawGrid(5,11,50,ctx,store);
+
   })
   );
 
@@ -71,7 +110,7 @@ export default component$(() => {
       // The click handler is completely stateless, and does not use any QWIK api.
       // Meaning, the qwik runtime is NEVER downloaded, nor executed
       console.log('click');
-      const canvas = document.getElementById('GameBoard-Main')! as HTMLElement;
+      const canvas = document.getElementById('GameBoard-Main') ! as HTMLElement;
       var ctx = canvas.getContext("2d");
       //drawRectangle(100,100,50,ctx);
       drawGrid(5,11,50,ctx);
