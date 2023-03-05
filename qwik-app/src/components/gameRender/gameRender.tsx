@@ -1,4 +1,4 @@
-import { component$, useStylesScoped$,useTask$ , useStore} from '@builder.io/qwik';
+import { component$, useStylesScoped$,useTask$ , useStore,useOn,$} from '@builder.io/qwik';
 import { FrogLogo } from '../icons/floppyfrog';
 
 export default component$(() => {
@@ -6,6 +6,30 @@ export default component$(() => {
     count: 0,
     debounced: 0,
   });
+
+  useOn(
+    'click',
+    $((event) => {
+      let size = 50;
+      const a = 2 * Math.PI / 6;
+      let minx = 0,miny=0, minDist = 100000;
+      for(let x =0 ;x<5;x++){
+        for(let y =0 ;y<11;y++){
+          let xLocation = (size *  Math.sin(a))*x*2 + (y%2 *(size *  Math.sin(a))) +size;
+          let yLocation = (size* (1+Math.cos(a)))*y +size;
+          let distance = Math.sqrt((xLocation - event.offsetX)**2 + (yLocation - event.offsetY)**2);
+          if (distance < minDist){
+            minDist = distance;
+            minx = x;
+            miny = y;
+          }
+      }
+    }
+    console.log(minx,miny);
+  
+  })
+  );
+
   useTask$(({ track }) => {
     // track changes in store.count
     track(() => store.count);
@@ -30,8 +54,6 @@ export default component$(() => {
             let xLocation = (size *  Math.sin(a))*x*2 + (y%2 *(size *  Math.sin(a)));
             let yLocation = (size* (1+Math.cos(a)))*y ;
             drawHexagon(xLocation+size,yLocation+size,size,ctx);
-            console.log(x,y);
-            console.log(xLocation,yLocation);
           }
         }
       }
