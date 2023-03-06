@@ -8,9 +8,6 @@ export default component$(() => {
       <div>
           Floppy Frog!
       </div>
-      <div>
-        <a href="/play">Play</a>
-      </div>
     </>
   );
 });

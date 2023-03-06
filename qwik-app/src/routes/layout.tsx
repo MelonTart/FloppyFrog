@@ -20,7 +20,7 @@ export default component$(() => {
     <>
       <main>
         <Header user={u} />
-        <section class="margin: auto">
+        <section>
           <Slot />
         </section>
       </main>

@@ -3,6 +3,7 @@ import { FrogLogo } from '../icons/floppyfrog';
 
 interface GameProps {
   id: string;
+  size: number;
 };
 
 export function ResetBoard(store){
@@ -52,7 +53,7 @@ export function drawGrid(width, height, size, ctx, store) {
     for (let x = 0, j = 1; x  < width; x +=1) {
       let xLocation = (size * Math.sin(a)) * x * 2 + (y % 2 *(size *  Math.sin(a)));
       let yLocation = (size * (1 + Math.cos(a))) * y ;
-      drawHexagon(xLocation+size, yLocation + size, size, ctx, store.letters[x + (y * 5)]);
+      drawHexagon(xLocation + size, yLocation + size, size, ctx, store.letters[x + (y * 5)]);
     }
   }
 }
@@ -137,7 +138,7 @@ export default component$((props: GameProps) => {
     $((ev) => {
       // Calculate selected hexagon
       let event = ev ! as PointerEvent;
-      let size = 50;
+      let size = props.size;
       const a = 2 * Math.PI / 6;
       let minx = 0, miny = 0, minDist = 100000;
       for(let x = 0 ; x < 5; x++){
@@ -152,7 +153,7 @@ export default component$((props: GameProps) => {
           }
         }
       }
-      if (minDist<size){
+      if (minDist < size){
         if(store.letters[minx + (miny * 5)] == 0 && store.moves != 0){
           store.letters[minx + (miny * 5)] = 1;
           store.moves -= 1;
@@ -221,21 +222,22 @@ export default component$((props: GameProps) => {
     track(() => store.letters[1]);
     const canvas = document.getElementById(props.id) ! as HTMLElement;
     var ctx = canvas.getContext("2d");
-    drawGrid(5, 11, 50, ctx, store);
-    let size = 50;
-    const a = 2 * Math.PI / 6;
-    let DMap = DistanceMap(store);
-    for(let m = 0; m < 55; m++){ 
-      let x = m % 5;
-      let y = Math.floor(m / 5);
-      let xLocation = (size *  Math.sin(a)) * x * 2 + (y % 2 * (size *  Math.sin(a))) + size;
-      let yLocation = (size * (1 + Math.cos(a))) * y + size;
-      ctx.font = "48px serif";
-      ctx.fillStyle = "white";
-      if(DMap[x + (y * 5)] != 100){
-        ctx.fillText(DMap[x + (y * 5)], xLocation, yLocation);
-      }
-    }
+    drawGrid(5, 11, props.size, ctx, store);
+    // let size = 25;
+    // const a = 2 * Math.PI / 6;
+    // let DMap = DistanceMap(store);
+    // for(let m = 0; m < 55; m++){ 
+    //   let x = m % 5;
+    //   let y = Math.floor(m / 5);
+    //   let xLocation = (size *  Math.sin(a)) * x * 2 + (y % 2 * (size *  Math.sin(a))) + size;
+    //   let yLocation = (size * (1 + Math.cos(a))) * y + size;
+    //   ctx.font = "48px serif";
+    //   ctx.fillStyle = "white";
+      // Draw distance map (debug)
+      // if(DMap[x + (y * 5)] != 100){
+      //   ctx.fillText(DMap[x + (y * 5)], xLocation, yLocation);
+      // }
+    // }
   });
 
   useTask$(({ track }) => {
@@ -246,7 +248,7 @@ export default component$((props: GameProps) => {
 
   return (
     <>
-      <canvas id={props.id} width= "490px" height="850px"></canvas>
+      <canvas id={props.id} width={9.8*props.size} height={17*props.size}></canvas>
       <div>This is the Game render, {store.moves} Moves</div> 
       {/* <button onClick$={() => {ResetBoard(store);}}>Reset!</button> */}
     </>
