@@ -9,9 +9,9 @@ export default component$(() => {
           Floppy Frog!
       </div>
       <div>
-        <a href="/play" title="frog">Play</a>
+        <a href="/play">Play</a>
       </div>
-     </>
+    </>
   );
 });
 

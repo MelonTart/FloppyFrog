@@ -1,6 +1,10 @@
 import { component$, useStylesScoped$,useTask$ , useStore,useOn,$,useBrowserVisibleTask$} from '@builder.io/qwik';
 import { FrogLogo } from '../icons/floppyfrog';
 
+interface GameProps {
+  id: string;
+};
+
 export function ResetBoard(store){
   store.won = 0;
   store.lost = 0;
@@ -48,7 +52,7 @@ export function drawGrid(width, height, size, ctx, store) {
     for (let x = 0, j = 1; x  < width; x +=1) {
       let xLocation = (size * Math.sin(a)) * x * 2 + (y % 2 *(size *  Math.sin(a)));
       let yLocation = (size * (1 + Math.cos(a))) * y ;
-      drawHexagon(xLocation+size, yLocation+size, size, ctx, store.letters[x + (y * 5)]);
+      drawHexagon(xLocation+size, yLocation + size, size, ctx, store.letters[x + (y * 5)]);
     }
   }
 }
@@ -118,7 +122,7 @@ export function getRandomKey(collection) {
   return keys[Math.floor(Math.random() * keys.length)];
 }
 
-export default component$(() => {
+export default component$((props: GameProps) => {
   const store = useStore(
     {
       letters: new Array(55).fill(0),
@@ -131,6 +135,7 @@ export default component$(() => {
   useOn(
     'click',
     $((ev) => {
+      // Calculate selected hexagon
       let event = ev ! as PointerEvent;
       let size = 50;
       const a = 2 * Math.PI / 6;
@@ -154,24 +159,24 @@ export default component$(() => {
         } 
       }
 
-      //check for win
+      // Check for win
       let DMap = DistanceMap(store);
       let CurrLocation = store.letters.indexOf(2);
       let NextToPig = AdjacentSquares(CurrLocation);
       let minDist2 = 99;
       NextToPig.forEach((value) => {
-        if (DMap[value! as number]<minDist2){
+        if (DMap[value ! as number] < minDist2){
           minDist2 = DMap[value! as number];
         }
       });
       if(minDist2 >= 99){
-        console.log("Game won!");
+        console.log("game won");
         store.won = 1;
         ResetBoard(store);
         return;
       }
 
-      //do pig logic
+      // Pig Logic (moves the pig)
       if (store.moves == 0 && store.lost != 1) {
         let DMap = DistanceMap(store);
         let CurrLocation = store.letters.indexOf(2);
@@ -188,16 +193,16 @@ export default component$(() => {
           }
         });
         if(minDist2 >= 99){
-          console.log("Game won!");
+          console.log("game won");
           store.won = 1;
           ResetBoard(store);
         } else {
           const NewSpace = getRandomKey(NextToPig)! as number;
           store.letters[CurrLocation ! as number] = 0;
           store.letters[NewSpace] = 2;
-          if(NewSpace % 5 == 0 ||NewSpace % 5 == 4  || Math.floor(NewSpace / 5) == 0  || Math.floor(NewSpace / 5) == 10 ){
+          if(NewSpace % 5 == 0 ||NewSpace % 5 == 4 || Math.floor(NewSpace / 5) == 0 || Math.floor(NewSpace / 5) == 10 ){
+            console.log("game lost");
             store.lost = 1;
-            console.log("Game Lost!");
             ResetBoard(store);
           } else {
             store.moves += 1;
@@ -214,7 +219,7 @@ export default component$(() => {
     // Updates game display when state changed and when visable
     // Runs when the component is visible and when "store.count" changes
     track(() => store.letters[1]);
-    const canvas = document.getElementById('GameBoard-Main') ! as HTMLElement;
+    const canvas = document.getElementById(props.id) ! as HTMLElement;
     var ctx = canvas.getContext("2d");
     drawGrid(5, 11, 50, ctx, store);
     let size = 50;
@@ -234,16 +239,16 @@ export default component$(() => {
   });
 
   useTask$(({ track }) => {
-    // inital setting of board
+    // Initial game setup
+    console.log('game start')
     ResetBoard(store);
   });
 
   return (
     <>
-      <canvas id="GameBoard-Main" width= "500px" height="850px">    
-      </canvas>
+      <canvas id={props.id} width= "490px" height="850px"></canvas>
       <div>This is the Game render, {store.moves} Moves</div> 
-      <button onClick$={() => {ResetBoard(store);}}>Reset!</button>
+      {/* <button onClick$={() => {ResetBoard(store);}}>Reset!</button> */}
     </>
   );
 });

@@ -12,15 +12,15 @@ export const useServerTimeLoader = loader$(() => {
 export default component$(() => {
   const serverTime = useServerTimeLoader();
   const u = {
-    username:"insert username",
-    token:"usertoken"
+    username:"notloggedin",
+    token:"sessiontoken"
   };
 
   return (
     <>
       <main>
         <Header user={u} />
-        <section>
+        <section class="margin: auto">
           <Slot />
         </section>
       </main>

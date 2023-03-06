@@ -13,9 +13,10 @@
   --qwik-dark-purple: #713fc2;
 }
 
-canvas{
-  border: 1px solid black;
-
+canvas {
+  border: 2px solid black;
+  padding: 10px;
+  margin: center;
 }
 
 body {

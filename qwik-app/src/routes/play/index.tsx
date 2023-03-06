@@ -4,12 +4,9 @@ import GameRender from '~/components/gameRender/gameRender';
 
 export default component$(() => {
   return (
-    <>
-    <div>
-        Play a Game!
-     </div>
-    <GameRender />
-    </>
+    
+      <GameRender id="GameCanvas"/>
+
   );
 });
 
