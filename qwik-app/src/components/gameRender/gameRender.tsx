@@ -5,7 +5,7 @@ import { FrogLogo } from '../icons/floppyfrog';
 export function ResetBoard(store){
   store.won = 0;
   store.lost=0;
-  store.turns=3;
+  store.moves=3;
   store.letters.fill(0);
   store.letters[27] = 2;
 
@@ -157,6 +157,23 @@ export default component$(() => {
               store.letters[minx+(miny*5)] = 1;
               store.moves -=1;
           } 
+    }
+
+    //check for win
+    let DMap = DistanceMap(store);
+    let CurrLocation = store.letters.indexOf(2);
+    let NextToPig = AdjacentSquares(CurrLocation);
+    let minDist2 = 99;
+    NextToPig.forEach((value) => {
+      if (DMap[value! as number]<minDist2){
+        minDist2 = DMap[value! as number];
+      }
+    });
+    if(minDist2>=99){
+      console.log("Game won!");
+      store.won = 1;
+      ResetBoard(store);
+      return;
     }
 
     //do pig logic
