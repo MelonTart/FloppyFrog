@@ -10,12 +10,16 @@ export function drawHexagon(x,y,size,ctx,State){
     ctx.lineTo(x + size * Math.sin(a * i), y + size * Math.cos(a * i));
   }
   ctx.closePath();
+  if(State == 0) {
+    ctx.fillStyle = "green";
+    ctx.fill();
+  }
   if(State == 1) {
     ctx.fillStyle = "blue";
     ctx.fill();
   }
   if(State == 2) {
-    ctx.fillStyle = "green";
+    ctx.fillStyle = "lime";
     ctx.fill();
   }
 
@@ -40,6 +44,7 @@ export default component$(() => {
   const store = useStore(
     {
       letters: new Array(55).fill(0),
+      moves:3,
     },
     { deep: true }
   );
@@ -76,7 +81,7 @@ export default component$(() => {
   })
   );
 
-  useBrowserVisibleTask$(({ ctx,track }) => {
+  useBrowserVisibleTask$(({ track }) => {
     track(() => store.letters[1]);
     const canvas = document.getElementById('GameBoard-Main') ! as HTMLElement;
     var ctx = canvas.getContext("2d");
@@ -87,13 +92,24 @@ export default component$(() => {
 
 
 
+
+
   useTask$(({ track }) => {
-    // track changes in store.count
-    
-    track(() => store.letters);
+    //inital setting of board
     store.letters[27] = 2;
-    console.log("tracked");
-    //const ctx = canvas.getContext('2d');
+
+    console.log("setting random places");
+      for(let randNum = 0;randNum<=12; randNum++){
+        let GeneratedIndex = Math.floor(Math.random() * 55);
+        if(store.letters[GeneratedIndex] != 0){
+          randNum--;
+          continue;
+        }
+        store.letters[GeneratedIndex] = 1;
+      };
+
+
+
   });
 
   return (
