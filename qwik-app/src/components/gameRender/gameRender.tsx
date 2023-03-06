@@ -25,7 +25,7 @@ export function ResetBoard(store){
 }
 
 export function drawHexagon(x, y, size, ctx, State){   
-  ctx.lineWidth = 10;
+  ctx.lineWidth = 5;
   const a = 2 * Math.PI / 6;
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
