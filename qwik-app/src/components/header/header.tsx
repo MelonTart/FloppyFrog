@@ -21,7 +21,13 @@ export default component$((props: HeaderProps) => {
           <FrogLogo />
         </a>
       </div>
+      <div class="logo">
+        
+      </div>
       <ul>
+        <li>
+          <a href="/play">Play Game</a>
+        </li>
         <li>
           <a href={"/user/" + props.user.username + '/match'}>History</a>
         </li>
