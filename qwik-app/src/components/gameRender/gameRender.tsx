@@ -21,7 +21,7 @@ export function ResetBoard(store){
 }
 
 export function drawHexagon(x,y,size,ctx,State){
-        
+  ctx.lineWidth = 10;
   const a = 2 * Math.PI / 6;
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
@@ -130,29 +130,36 @@ export default component$(() => {
       moves:3,
       won:0,
       lost:0,
+      mousex:0,
+      mousey:0,
     },
     { deep: true }
   );
+
+  
+
   useOn(
     'click',
     $((ev) => {
       let event = ev ! as PointerEvent;
       let size = 50;
       const a = 2 * Math.PI / 6;
-      let minx = 0,miny=0, minDist = 100000;
+      let minx = 0,miny=0, minDist = 100000,mindistx=1000,mindisty=1000;
       for(let x =0 ;x<5;x++){
         for(let y =0 ;y<11;y++){
           let xLocation = (size *  Math.sin(a))*x*2 + (y%2 *(size *  Math.sin(a))) +size;
           let yLocation = (size* (1+Math.cos(a)))*y +size;
           let distance = Math.sqrt((xLocation - event.offsetX)**2 + (yLocation - event.offsetY)**2);
           if (distance < minDist){
+            mindistx = (xLocation - event.offsetX);
+            mindisty = (yLocation - event.offsetY);
             minDist = distance;
             minx = x;
             miny = y;
           }
       }
     }
-    if (minDist<size){
+    if (minDist<((size*Math.sin(a)))){
           if(store.letters[minx+(miny*5)]==0 && store.moves != 0){
               store.letters[minx+(miny*5)] = 1;
               store.moves -=1;
@@ -228,8 +235,8 @@ export default component$(() => {
     track(() => store.letters[1]);
     const canvas = document.getElementById('GameBoard-Main') ! as HTMLElement;
     var ctx = canvas.getContext("2d");
-    drawGrid(5,11,50,ctx,store);
-    let size = 50;
+    drawGrid(5,11,500,ctx,store);
+    let size = 500;
     const a = 2 * Math.PI / 6;
     let DMap = DistanceMap(store);
     for(let m = 0;m<55;m++){ 
@@ -237,13 +244,16 @@ export default component$(() => {
       let y = Math.floor(m/5);
       let xLocation = (size *  Math.sin(a))*x*2 + (y%2 *(size *  Math.sin(a))) +size;
       let yLocation = (size* (1+Math.cos(a)))*y +size;
-      ctx.font = "48px serif";
+      ctx.font = "480px serif";
       ctx.fillStyle = "white";
       if(DMap[x+(y*5)]!= 100){
-        ctx.fillText(DMap[x+(y*5)], xLocation, yLocation);
+        ctx.fillText(DMap[x+(y*5)], xLocation-(size/4), yLocation+(size/4));
+
       }
       
     }
+    canvas.style.width = "500px";
+    canvas.style.height = "950px";
     // will run when the component becomes visible and every time "store.count" changes
   });
 
@@ -258,9 +268,9 @@ export default component$(() => {
 
   return (
     <>
-    <canvas id="GameBoard-Main" width= "500px" height="850px">    
+    <canvas id="GameBoard-Main" width= "5000px" height="9500px">    
     </canvas>
-    <div>This is the Game render, {store.moves} Moves</div> 
+    <div>This is the Game render, {store.moves} Moves, {store.mousex},{store.mousey}</div> 
     <button onClick$={() => {
 
 ResetBoard(store);
