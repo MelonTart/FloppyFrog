@@ -25,6 +25,7 @@ export function ResetBoard(store){
 }
 
 export function drawHexagon(x, y, size, ctx, State){   
+  ctx.lineWidth = 10;
   const a = 2 * Math.PI / 6;
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
@@ -130,9 +131,14 @@ export default component$((props: GameProps) => {
       moves:3,
       won:0,
       lost:0,
+      mousex:0,
+      mousey:0,
     },
     { deep: true }
   );
+
+  
+
   useOn(
     'click',
     $((ev) => {
@@ -147,6 +153,8 @@ export default component$((props: GameProps) => {
           let yLocation = (size * (1 + Math.cos(a))) * y + size;
           let distance = Math.sqrt((xLocation - event.offsetX)**2 + (yLocation - event.offsetY)**2);
           if (distance < minDist){
+            mindistx = (xLocation - event.offsetX);
+            mindisty = (yLocation - event.offsetY);
             minDist = distance;
             minx = x;
             miny = y;
