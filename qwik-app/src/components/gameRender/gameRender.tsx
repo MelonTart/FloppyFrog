@@ -5,9 +5,26 @@ import { FrogLogo } from '../icons/floppyfrog';
 interface GameProps {
   id: string;
   size: number;
-};
+
+interface GameData {
+  letters: Array<number>,
+  moves: number,
+  won: number,
+  lost: number,
+  mousex: number,
+  mousey: number,
+  started: number,
+  gamestate: number,
+  game_started_at: null | string,
+  game_ended_at: null | string
+}
+
 
 export function ResetBoard(store){
+
+  store.gamestate = 0;
+  store.game_started_at = null;
+  store.game_ended_at = null;
   store.won = 0;
   store.lost = 0;
   store.moves = 3;
@@ -126,14 +143,14 @@ export function getRandomKey(collection) {
 }
 
 export default component$((props: GameProps) => {
-  const store = useStore(
+  const store = useStore<GameData>(
     {
       letters: new Array(55).fill(0),
       moves:3,
       won:0,
       lost:0,
-      socket:null,
-
+      mousex:0,
+      mousey:0,
     },
     { deep: true }
   );
@@ -141,6 +158,12 @@ export default component$((props: GameProps) => {
   useOn(
     'click',
     $((ev) => {
+      if(store.gamestate == 0){
+        store.gamestate = 1;
+        store.game_started_at = new Date().toISOString();
+        console.log('game started',store.game_started_at);
+        return; // Click to begin game (first click no effect on board)
+      }
       // Calculate selected hexagon
       let event = ev ! as PointerEvent;
       let size = props.size;
@@ -176,8 +199,9 @@ export default component$((props: GameProps) => {
         }
       });
       if(minDist2 >= 99){
-        console.log("game won");
         store.won = 1;
+        store.game_ended_at = new Date().toISOString();
+        console.log("game won",store.game_started_at,store.game_ended_at);
         ResetBoard(store);
         return;
       }
@@ -199,16 +223,18 @@ export default component$((props: GameProps) => {
           }
         });
         if(minDist2 >= 99){
-          console.log("game won");
+          store.game_ended_at = new Date().toISOString();
           store.won = 1;
+          console.log("game won",store.game_started_at,store.game_ended_at);
           ResetBoard(store);
         } else {
           const NewSpace = getRandomKey(NextToPig)! as number;
           store.letters[CurrLocation ! as number] = 0;
           store.letters[NewSpace] = 2;
-          if(NewSpace % 5 == 0 ||NewSpace % 5 == 4 || Math.floor(NewSpace / 5) == 0 || Math.floor(NewSpace / 5) == 10 ){
-            console.log("game lost");
+          if(NewSpace % 5 == 0 || NewSpace % 5 == 4 || Math.floor(NewSpace / 5) == 0 || Math.floor(NewSpace / 5) == 10 ){
             store.lost = 1;
+            store.game_ended_at = new Date().toISOString();
+            console.log("game lost",store.game_started_at,store.game_ended_at);
             ResetBoard(store);
           } else {
             store.moves += 1;
@@ -271,7 +297,7 @@ export default component$((props: GameProps) => {
 
   useTask$(({ track }) => {
     // Initial game setup
-    console.log('game start')
+    console.log('game start');
     ResetBoard(store);
 
     
