@@ -17,6 +17,7 @@ canvas {
   border: 2px solid black;
   margin: auto;
   display: block;
+  box-sizing: border-box;
 }
 
 
@@ -43,9 +44,13 @@ h2 {
 .lightning {
   filter: hue-rotate(180deg);
 }
+section > * {
+  box-sizing: border-box;
+}
 
 section {
   padding: 20px;
+  box-sizing: border-box;
   border-bottom: 10px solid var(--qwik-dark-blue);
 }
 

@@ -1,4 +1,5 @@
-import { component$, useStylesScoped$,useTask$ , useStore,useOn,$,useBrowserVisibleTask$} from '@builder.io/qwik';
+import { component$,noSerialize , useStylesScoped$,useTask$ , useStore,useOn,$,useBrowserVisibleTask$} from '@builder.io/qwik';
+import { Socket } from 'dgram';
 import { FrogLogo } from '../icons/floppyfrog';
 
 interface GameProps {
@@ -25,7 +26,7 @@ export function ResetBoard(store){
 }
 
 export function drawHexagon(x, y, size, ctx, State){   
-  ctx.lineWidth = 10;
+  ctx.lineWidth = 5;
   const a = 2 * Math.PI / 6;
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
@@ -131,8 +132,8 @@ export default component$((props: GameProps) => {
       moves:3,
       won:0,
       lost:0,
-      mousex:0,
-      mousey:0,
+      socket:null,
+
     },
     { deep: true }
   );
@@ -219,14 +220,38 @@ export default component$((props: GameProps) => {
       //drawGrid(5,11,50,ctx,store);
     })
   );
-
+  
+  useBrowserVisibleTask$(({ }) => {
+    //SetUp WSS when it its visable on the screen
+    var socket = new WebSocket('ws://localhost:8080');
+    store.socket = noSerialize(socket);
+    socket.addEventListener('message', (event) => {
+      console.log('Message received:', event.data);
+      socket.send("Hello");
+      // Update your Qwik component state or perform any other necessary action based on the received message
+    });
+    
+    
+  });
   useBrowserVisibleTask$(({ track }) => {
+    //props.size = 60;
     // Updates game display when state changed and when visable
     // Runs when the component is visible and when "store.count" changes
     track(() => store.letters[1]);
     const canvas = document.getElementById(props.id) ! as HTMLElement;
     var ctx = canvas.getContext("2d");
     drawGrid(5, 11, props.size, ctx, store);
+
+    if(store.socket!=null){
+      store.socket.send("updating Screen");
+    }
+    //const WebSocket = require('ws');
+
+
+
+
+
+
     // let size = 25;
     // const a = 2 * Math.PI / 6;
     // let DMap = DistanceMap(store);
@@ -248,13 +273,17 @@ export default component$((props: GameProps) => {
     // Initial game setup
     console.log('game start')
     ResetBoard(store);
+
+    
   });
 
+  
+
   return (
-    <>
+    <div id="gamebox">
       <canvas id={props.id} width={9.8*props.size} height={17*props.size}></canvas>
       <div>This is the Game render, {store.moves} Moves</div> 
       {/* <button onClick$={() => {ResetBoard(store);}}>Reset!</button> */}
-    </>
+    </div>
   );
 });
