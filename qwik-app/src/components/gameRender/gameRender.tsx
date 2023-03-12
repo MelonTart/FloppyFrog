@@ -277,6 +277,12 @@ return;
   );
   
   useBrowserVisibleTask$(({ }) => {
+    function handleResize() {
+      console.log(Math.max((window.innerWidth/3),280) , Math.min(Math.max((window.innerWidth/3),280),450));
+      store.scale = Math.min(Math.max((window.innerWidth/3),280),450)/ (9.8*props.size);
+    }
+
+    window.addEventListener('resize', handleResize);
     //SetUp WSS when it its visable on the screen
     console.log('game start');
     ResetBoard(store);
@@ -351,7 +357,7 @@ return;
     //const WebSocket = require('ws');
 
     console.log(window.innerWidth);
-    var scale = Math.max((window.innerWidth/3),280)/ (9.8*props.size);
+    var scale = Math.min(Math.max((window.innerWidth/3),280),450)/ (9.8*props.size);
     store.scale = scale;
     console.log(scale);
     canvas.style.width = scale*(9.8*props.size)+"px";
