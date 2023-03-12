@@ -6,12 +6,16 @@ interface GameProps {
   id: string;
   size: number;
   userid: number;
+  gameID:number;
+  MYUSERID:number;
 }
 interface GameData {
   letters: Array<number>,
   moves: number,
   won: number,
   lost: number,
+  MYUSERID:number,
+  gameID:number,
   mousex: number,
   mousey: number,
   started: number,
@@ -169,6 +173,7 @@ export default component$((props: GameProps) => {
       won:0,
       lost:0,
       socket:null,
+      gameID:props.gameID,
     },
     { deep: true }
   );
@@ -176,6 +181,10 @@ export default component$((props: GameProps) => {
   useOn(
     'click',
     $((ev) => {
+      if (props.userid != props.MYUSERID){
+return;
+      }
+      console.log("clicked");
       if(store.gamestate == 0){
         store.gamestate = 1;
         store.game_started_at = new Date().toISOString();
@@ -274,12 +283,17 @@ export default component$((props: GameProps) => {
     store.socket = noSerialize(socket);
     socket.addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
+      if (data.type=="update"){
+
+      
       var current = [... store.letters];
       if(!arraysEqual(data.data.letters,current) && props.userid == data.data.userId){
         console.log("updating game");
         store.letters = data.data.letters;
         store.moves = data.data.moves;
       }
+    
+    }
       //console.log(event.data.data.letters);
       //console.log(store.letters);
       //store.letters[1] = 1;
@@ -294,6 +308,7 @@ export default component$((props: GameProps) => {
           userId: props.userid,
           letters: store.letters,
           moves:store.moves,
+          gameID:props.gameID,
         }
       };
       
@@ -306,14 +321,16 @@ export default component$((props: GameProps) => {
     //props.size = 60;
     // Updates game display when state changed and when visable
     // Runs when the component is visible and when "store.count" changes
+    
     track(() => store.letters[1]);
     track(() => store.moves);
+
+
+    
     const canvas = document.getElementById(props.id) ! as HTMLElement;
     var ctx = canvas.getContext("2d");
     drawGrid(5, 11, props.size, ctx, store);
-    if(store.socket!=null){
-      console.log(store.socket.readyState);
-    }
+
     if(store.socket!=null && store.socket.readyState == 1){
       const message = {
         type: 'update',
@@ -321,6 +338,7 @@ export default component$((props: GameProps) => {
           userId: props.userid,
           letters: store.letters,
           moves:store.moves,
+          gameID:props.gameID,
         }
       };
       
@@ -357,7 +375,7 @@ export default component$((props: GameProps) => {
   return (
     <div id="gamebox">
       <canvas id={props.id} width={9.8*props.size} height={17*props.size}></canvas>
-      <div>This is the Game render, {store.moves} Moves</div> 
+      <div>This is the Game render, {store.moves} Moves, GameID {props.gameID},UserGameIndex {props.userid}, my UserID{props.MYUSERID}</div> 
       {/* <button onClick$={() => {ResetBoard(store);}}>Reset!</button> */}
     </div>
   );

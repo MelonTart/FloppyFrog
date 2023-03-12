@@ -5,7 +5,7 @@ import GameRender from '~/components/gameRender/gameRender';
 export default component$(() => {
   return (
     <div>
-      <GameRender id="GameCanvas" size={27} userid={1} />
+      <GameRender id="GameCanvas" gameID={1} size={27} userid={1} MYUSERID={1} />
     </div>
   );
 });
