@@ -5,7 +5,8 @@ import { FrogLogo } from '../icons/floppyfrog';
 interface GameProps {
   id: string;
   size: number;
-
+  userid: number;
+}
 interface GameData {
   letters: Array<number>,
   moves: number,
@@ -16,9 +17,26 @@ interface GameData {
   started: number,
   gamestate: number,
   game_started_at: null | string,
-  game_ended_at: null | string
+  game_ended_at: null | string,
+  socket:object
+
 }
 
+export function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+
+  // If you don't care about the order of the elements inside
+  // the array, you should sort both arrays here.
+  // Please note that calling sort on an array will modify that array.
+  // you might want to clone your array first.
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
 
 export function ResetBoard(store){
 
@@ -27,19 +45,20 @@ export function ResetBoard(store){
   store.game_ended_at = null;
   store.won = 0;
   store.lost = 0;
-  store.moves = 3;
-  store.letters.fill(0);
-  store.letters[27] = 2;
+  var NewBoard = new Array(55).fill(0);
+  NewBoard[27] = 2;
 
   console.log("setting random places");
     for(let randNum = 0; randNum <= 12; randNum++){
       let GeneratedIndex = Math.floor(Math.random() * 55);
-      if(store.letters[GeneratedIndex] != 0){
+      if(NewBoard[GeneratedIndex] != 0){
         randNum--;
         continue;
       }
-      store.letters[GeneratedIndex] = 1;
+      NewBoard[GeneratedIndex] = 1;
     };
+    store.moves = 3;
+    store.letters = NewBoard;
 }
 
 export function drawHexagon(x, y, size, ctx, State){   
@@ -149,8 +168,7 @@ export default component$((props: GameProps) => {
       moves:3,
       won:0,
       lost:0,
-      mousex:0,
-      mousey:0,
+      socket:null,
     },
     { deep: true }
   );
@@ -249,14 +267,39 @@ export default component$((props: GameProps) => {
   
   useBrowserVisibleTask$(({ }) => {
     //SetUp WSS when it its visable on the screen
-    var socket = new WebSocket('ws://localhost:8080');
+    console.log('game start');
+    ResetBoard(store);
+
+    var socket = new WebSocket('ws://10.0.0.164:8080');
     store.socket = noSerialize(socket);
     socket.addEventListener('message', (event) => {
-      console.log('Message received:', event.data);
-      socket.send("Hello");
+      const data = JSON.parse(event.data);
+      var current = [... store.letters];
+      if(!arraysEqual(data.data.letters,current) && props.userid == data.data.userId){
+        console.log("updating game");
+        store.letters = data.data.letters;
+        store.moves = data.data.moves;
+      }
+      //console.log(event.data.data.letters);
+      //console.log(store.letters);
+      //store.letters[1] = 1;
       // Update your Qwik component state or perform any other necessary action based on the received message
     });
-    
+
+    socket.addEventListener('open', (event) => {
+      
+      const message = {
+        type: 'update',
+        data: {
+          userId: props.userid,
+          letters: store.letters,
+          moves:store.moves,
+        }
+      };
+      
+      store.socket.send(JSON.stringify(message));
+
+    });
     
   });
   useBrowserVisibleTask$(({ track }) => {
@@ -264,17 +307,30 @@ export default component$((props: GameProps) => {
     // Updates game display when state changed and when visable
     // Runs when the component is visible and when "store.count" changes
     track(() => store.letters[1]);
+    track(() => store.moves);
     const canvas = document.getElementById(props.id) ! as HTMLElement;
     var ctx = canvas.getContext("2d");
     drawGrid(5, 11, props.size, ctx, store);
-
     if(store.socket!=null){
-      store.socket.send("updating Screen");
+      console.log(store.socket.readyState);
+    }
+    if(store.socket!=null && store.socket.readyState == 1){
+      const message = {
+        type: 'update',
+        data: {
+          userId: props.userid,
+          letters: store.letters,
+          moves:store.moves,
+        }
+      };
+      
+      store.socket.send(JSON.stringify(message));
     }
     //const WebSocket = require('ws');
 
 
 
+    //store.letters[1] = 1;
 
 
 
@@ -295,13 +351,6 @@ export default component$((props: GameProps) => {
     // }
   });
 
-  useTask$(({ track }) => {
-    // Initial game setup
-    console.log('game start');
-    ResetBoard(store);
-
-    
-  });
 
   
 

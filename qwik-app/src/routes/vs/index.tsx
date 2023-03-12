@@ -5,17 +5,18 @@ import GameRender from '~/components/gameRender/gameRender';
 export default component$(() => {
   return (
     <div>
-      <GameRender id="GameCanvas" size={27} userid={1} />
+      <GameRender id="GameCanvas1" size={27} userid={1} />
+      <GameRender id="GameCanvas2" size={27} userid={2}/>
     </div>
   );
 });
 
 export const head: DocumentHead = {
-  title: 'Play',
+  title: 'Vs',
   meta: [
     {
       name: 'Floppy Frog',
-      content: 'Floppy Frog, Can You Survive?',
+      content: 'Floppy Frog, Who Will Win',
     },
   ],
 };
