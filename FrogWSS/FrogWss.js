@@ -57,7 +57,7 @@ server.on('connection', (socket) => {
     if (data.type=="update"){
     const userId = data.data.userId;
     const gameID = data.data.gameID;
-   //console.log(userId,gameID,Games[gameID]);
+   console.log(userId,gameID,Games[gameID]);
     Games[gameID][userId-1] = data.data.letters;
 
 
@@ -75,9 +75,10 @@ server.on('connection', (socket) => {
             userId: userId,
             letters: Games[gameID][userId-1],
             moves:data.data.moves,
+            gameID:gameID,
           }
         };
-        
+        //console.log("sending , ",message);
         client.send(JSON.stringify(message));
       }
     }

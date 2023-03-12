@@ -22,7 +22,9 @@ interface GameData {
   gamestate: number,
   game_started_at: null | string,
   game_ended_at: null | string,
-  socket:object
+  socket:object,
+  scale:number,
+
 
 }
 
@@ -66,7 +68,7 @@ export function ResetBoard(store){
 }
 
 export function drawHexagon(x, y, size, ctx, State){   
-  ctx.lineWidth = 5;
+  ctx.lineWidth = 10;
   const a = 2 * Math.PI / 6;
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
@@ -193,7 +195,7 @@ return;
       }
       // Calculate selected hexagon
       let event = ev ! as PointerEvent;
-      let size = props.size;
+      let size = props.size*store.scale;
       const a = 2 * Math.PI / 6;
       let minx = 0, miny = 0, minDist = 100000;
       for(let x = 0 ; x < 5; x++){
@@ -287,7 +289,9 @@ return;
 
       
       var current = [... store.letters];
-      if(!arraysEqual(data.data.letters,current) && props.userid == data.data.userId){
+      console.log(data.data)
+      console.log(data.data.gameID,props.gameID);
+      if(!arraysEqual(data.data.letters,current) && props.userid == data.data.userId && props.gameID ==  data.data.gameID){
         console.log("updating game");
         store.letters = data.data.letters;
         store.moves = data.data.moves;
@@ -323,7 +327,7 @@ return;
     // Runs when the component is visible and when "store.count" changes
     
     track(() => store.letters[1]);
-    track(() => store.moves);
+    track(() => store.scale);
 
 
     
@@ -345,6 +349,13 @@ return;
       store.socket.send(JSON.stringify(message));
     }
     //const WebSocket = require('ws');
+
+    console.log(window.innerWidth);
+    var scale = Math.max((window.innerWidth/3),280)/ (9.8*props.size);
+    store.scale = scale;
+    console.log(scale);
+    canvas.style.width = scale*(9.8*props.size)+"px";
+    canvas.style.height =scale*(17*props.size)+"px";
 
 
 
